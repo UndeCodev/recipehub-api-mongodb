@@ -1,5 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
+import cors from 'cors';
+
 import { createRoles } from './libs/initialSetup';
 
 // Routes
@@ -10,6 +12,7 @@ import recipeRouter from './routes/recipe.routes';
 const app = express();
 createRoles();
 
+app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 

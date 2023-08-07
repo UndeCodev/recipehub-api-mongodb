@@ -46,13 +46,13 @@ export const createCategory = async(req, res) => {
 
 export const updateCategory = async(req, res) => {
   const { id } = req.params;
-  const { category } = req.body;
+  const { category, photoURL } = req.body;
  
   try {
     if(!isValidObjectId(id)) return res.status(400).json({ message: 'El id proporcionado no es válido.' });
-    if(!category) return res.status(400).json({ message: 'Falta el campo de la categoría a modificar.' });
+    // if(!category || !photoURL) return res.status(400).json({ message: 'Falta el campo de la categoría a modificar.' });
 
-    const categoryUpdated = await Category.findByIdAndUpdate(id, { category }, { new: true });
+    const categoryUpdated = await Category.findByIdAndUpdate(id, { category, photoURL }, { new: true });
     if(!categoryUpdated) return res.status(404).json({ message: 'No se encontró ninguna categoría con este id.' });
 
     res.json(categoryUpdated);

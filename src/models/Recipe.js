@@ -3,14 +3,21 @@ import { Schema, model } from 'mongoose';
 const recipeSchema = new Schema({
   title: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   category: {
     type: Schema.Types.ObjectId,
     ref: 'Category',
+    required: true
   },
   description: {
     type: String,
+    required: true
+  },
+  author: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
     required: true
   },
   videoURL: String,
@@ -35,10 +42,6 @@ const recipeSchema = new Schema({
     required: true
   },
   yieldRecipe: String,
-  coverRecipe: {
-    type: String,
-    required: true
-  },
   images: {
     type: Object,
     required: true

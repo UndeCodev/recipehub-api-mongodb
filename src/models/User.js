@@ -10,10 +10,7 @@ const userSchema = new Schema({
         type: String,
         unique: true
     },
-    password: {
-        type: String,
-        required: true
-    },
+    password: String,
     images: {
         type: Object,
         required: true
@@ -21,7 +18,12 @@ const userSchema = new Schema({
     rol: {
         type: Schema.Types.ObjectId,
         ref: "Role",
-    } 
+    },
+    recipes: [{
+        type: Schema.Types.ObjectId,
+        ref: "Recipes",
+    }],
+    providerInformation: Object
 }, {
     versionKey: false,
     timestamps: true

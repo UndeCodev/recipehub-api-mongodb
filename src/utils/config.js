@@ -1,5 +1,4 @@
 import { config } from 'dotenv';
-
 config();
 
 export const MONGODB_URI = process.env.MONGODB_URI;
@@ -9,3 +8,7 @@ export const  PRIVATE_KEY  = process.env.PRIVATE_KEY;
 export const  URL_ENDPOINT = process.env.URL_ENDPOINT;
 
 export const  SECRET = process.env.SECRET;
+
+export const  FIREBASE_PROJECT_ID   = process.env.FIREBASE_PROJECT_ID;
+export const  FIREBASE_PRIVATE_KEY  = process.env.FIREBASE_PRIVATE_KEY;
+export const  FIREBASE_CLIENT_EMAIL = process.env.FIREBASE_CLIENT_EMAIL;
