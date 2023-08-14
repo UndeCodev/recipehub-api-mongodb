@@ -31,16 +31,19 @@ export const getRecipes = async(req, res) => {
   }
 }
 
-export const getRecipeById = async(req, res) => {
-  const { id } = req.params;
+export const getRecipeByName = async(req, res) => {
+  const { category } = req.params;
 
   try {
-    if(!isValidObjectId(id)) return res.status(400).json({ message: 'El id proporcionado no es válido.' });
+    if(!category) return res.status(400).json({ message: 'Falta la categoría a buscar.' });
 
-    const recipeFound = await Recipe.findById(id);
-    if(!recipeFound) return res.status(404).json({ message: 'No se encontró ninguna receta con este id.' });
+    const categoryFound = await Category.findOne({ category: { $in: category } });
+    if(!categoryFound) return res.status(404).json({ message: 'No se encontró ninguna categoría con este nombre.' });
 
-    res.json(recipeFound);
+    const recipesFound = await Recipe.find({ category: { $in: categoryFound._id } });
+    if(!recipesFound) return res.status(404).json({ message: 'No se encontraron recetas con esta categoría.' });
+
+    res.json(recipesFound);
   }catch(error){
     res.status(409).json({ message: error.message });
   }
@@ -167,6 +170,7 @@ export const createRecipe = async (req, res) => {
 
     const authorFound = await User.findOne({ _id: { $in: userId } });
     if(!authorFound) return res.status(404).json({ message: 'Autor no encontrado.' });   
+    console.log(authorFound);
     
     newRecipe.author = authorFound._id;
 

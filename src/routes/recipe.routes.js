@@ -6,7 +6,7 @@ import { multerUpload } from '../utils/multer';
 const router = Router();
 
 router.get('/', recipeController.getRecipes);
-router.get('/:id', recipeController.getRecipeById);
+router.get('/:category', recipeController.getRecipeByName);
 router.get('/author/:id', recipeController.getRecipesByAuthor);
 
 router.post('/', multerUpload.any(), recipeController.createRecipe);

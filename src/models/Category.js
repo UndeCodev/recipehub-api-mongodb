@@ -5,10 +5,6 @@ const categorySchema = new Schema({
     type: String,
     required: true,
     unique: true,
-  },
-  photoURL: {
-    type: String,
-    required: true
   }
 }, {
   versionKey: false
