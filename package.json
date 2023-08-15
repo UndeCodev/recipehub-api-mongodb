@@ -2,6 +2,9 @@
   "name": "recipehub-api-mongodb",
   "version": "1.0.0",
   "main": "index.js",
+  "engines": {
+    "node": "18.17.1"
+  },
   "scripts": {
     "build": "babel src --out-dir build",
     "dev": "nodemon src/index.js --exec babel-node",
