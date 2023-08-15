@@ -14,7 +14,7 @@ var router = (0, _express.Router)();
 router.get('/', recipeController.getRecipes);
 router.get('/:category', recipeController.getRecipeByName);
 router.get('/author/:id', recipeController.getRecipesByAuthor);
-router.post('/', _multer.multerUpload.any(), recipeController.createRecipe);
+router.post('/', _multer.multerUpload.single('fileImage'), recipeController.createRecipe);
 router["delete"]('/:id', recipeController.deleteRecipe);
 var _default = router;
 exports["default"] = _default;

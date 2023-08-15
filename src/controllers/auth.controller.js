@@ -98,14 +98,21 @@ export const signUp = async(req, res) => {
 
         const userSaved = await newUser.save();
 
+        const user = await User.findOne({ _id: { $in: userSaved._id } })
+                                      .select({ createdAt: 0, updatedAt: 0, password: 0, recipes: 0 })
+                                      .populate({
+                                        path: 'rol',
+                                        select: ({ _id: 0 })
+                                      })
+                                      .lean();
+
         const token = jwt.sign(
-            { user: userSaved },
+            { user },
             SECRET,
             { expiresIn: 86400 }
         );
         
         res.json({ token });
-        
     }catch(error) {
         res.status(409).json({ message: error.message });
     }

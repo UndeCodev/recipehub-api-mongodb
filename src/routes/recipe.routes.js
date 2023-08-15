@@ -9,7 +9,7 @@ router.get('/', recipeController.getRecipes);
 router.get('/:category', recipeController.getRecipeByName);
 router.get('/author/:id', recipeController.getRecipesByAuthor);
 
-router.post('/', multerUpload.any(), recipeController.createRecipe);
+router.post('/', multerUpload.single('fileImage'), recipeController.createRecipe);
 router.delete('/:id', recipeController.deleteRecipe);
 
-export default router; 
+export default router;

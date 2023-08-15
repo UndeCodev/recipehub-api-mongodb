@@ -141,7 +141,7 @@ var signIn = /*#__PURE__*/function () {
 exports.signIn = signIn;
 var signUp = /*#__PURE__*/function () {
   var _ref3 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(req, res) {
-    var _req$body2, name, email, password, rol, file, userFound, newUser, foundRol, role, _yield$uploadImage, fileId, photoURL, thumbnailUrl, userSaved, token;
+    var _req$body2, name, email, password, rol, file, userFound, newUser, foundRol, role, _yield$uploadImage, fileId, photoURL, thumbnailUrl, userSaved, user, token;
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
@@ -237,27 +237,45 @@ var signUp = /*#__PURE__*/function () {
           return newUser.save();
         case 40:
           userSaved = _context3.sent;
+          _context3.next = 43;
+          return _User["default"].findOne({
+            _id: {
+              $in: userSaved._id
+            }
+          }).select({
+            createdAt: 0,
+            updatedAt: 0,
+            password: 0,
+            recipes: 0
+          }).populate({
+            path: 'rol',
+            select: {
+              _id: 0
+            }
+          }).lean();
+        case 43:
+          user = _context3.sent;
           token = _jsonwebtoken["default"].sign({
-            user: userSaved
+            user: user
           }, _config.SECRET, {
             expiresIn: 86400
           });
           res.json({
             token: token
           });
-          _context3.next = 48;
+          _context3.next = 51;
           break;
-        case 45:
-          _context3.prev = 45;
+        case 48:
+          _context3.prev = 48;
           _context3.t5 = _context3["catch"](2);
           res.status(409).json({
             message: _context3.t5.message
           });
-        case 48:
+        case 51:
         case "end":
           return _context3.stop();
       }
-    }, _callee3, null, [[2, 45]]);
+    }, _callee3, null, [[2, 48]]);
   }));
   return function signUp(_x5, _x6) {
     return _ref3.apply(this, arguments);
