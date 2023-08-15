@@ -16,5 +16,8 @@ router.post('/signup-provider', authController.signUpWithProvider);
 router.post('/signin', authController.signIn);
 router.post('/signin-provider', authController.signInWithProvider);
 router.get('/verify-token', authController.verifyToken);
+router.get('/verify-reset-token', authController.verifyResetToken);
+router.post('/password-reset', authController.passwordReset);
+router.post('/reset-password/:token', authController.resetPassword);
 var _default = router;
 exports["default"] = _default;

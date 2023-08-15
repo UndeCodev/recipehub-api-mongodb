@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.URL_ENDPOINT = exports.SECRET = exports.PUBLIC_KEY = exports.PRIVATE_KEY = exports.MONGODB_URI = exports.FIREBASE_PROJECT_ID = exports.FIREBASE_PRIVATE_KEY = exports.FIREBASE_CLIENT_EMAIL = void 0;
+exports.URL_ENDPOINT = exports.SECRET = exports.PUBLIC_KEY = exports.PRIVATE_KEY = exports.PASSWORD = exports.MONGODB_URI = exports.FIREBASE_PROJECT_ID = exports.FIREBASE_PRIVATE_KEY = exports.FIREBASE_CLIENT_EMAIL = exports.EMAIL = exports.BASE_URL = void 0;
 var _dotenv = require("dotenv");
 (0, _dotenv.config)();
 var MONGODB_URI = process.env.MONGODB_URI;
@@ -22,3 +22,9 @@ var FIREBASE_PRIVATE_KEY = process.env.FIREBASE_PRIVATE_KEY;
 exports.FIREBASE_PRIVATE_KEY = FIREBASE_PRIVATE_KEY;
 var FIREBASE_CLIENT_EMAIL = process.env.FIREBASE_CLIENT_EMAIL;
 exports.FIREBASE_CLIENT_EMAIL = FIREBASE_CLIENT_EMAIL;
+var EMAIL = process.env.EMAIL;
+exports.EMAIL = EMAIL;
+var PASSWORD = process.env.PASSWORD;
+exports.PASSWORD = PASSWORD;
+var BASE_URL = process.env.BASE_URL;
+exports.BASE_URL = BASE_URL;

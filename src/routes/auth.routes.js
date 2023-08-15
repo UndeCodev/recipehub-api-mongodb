@@ -12,5 +12,9 @@ router.post('/signin', authController.signIn);
 router.post('/signin-provider', authController.signInWithProvider);
 
 router.get('/verify-token', authController.verifyToken);
+router.get('/verify-reset-token', authController.verifyResetToken);
+
+router.post('/password-reset', authController.passwordReset);
+router.post('/reset-password/:token', authController.resetPassword);
 
 export default router;  
