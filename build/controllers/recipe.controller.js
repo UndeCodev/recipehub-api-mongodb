@@ -4,7 +4,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.updateRecipe = exports.getRecipesByAuthor = exports.getRecipes = exports.getRecipeByName = exports.deleteRecipe = exports.createRecipe = void 0;
+exports.updateRecipe = exports.searchTerm = exports.getRecipesByAuthor = exports.getRecipes = exports.getRecipeByName = exports.getRecipeById = exports.deleteRecipe = exports.createRecipe = void 0;
 var _mongoose = require("mongoose");
 var _imagekit = require("../utils/imagekit");
 var _Recipe = _interopRequireDefault(require("../models/Recipe"));
@@ -34,8 +34,7 @@ var getRecipes = /*#__PURE__*/function () {
           }).populate({
             path: 'category',
             select: {
-              _id: 0,
-              photoURL: 0
+              _id: 0
             }
           });
         case 3:
@@ -105,6 +104,20 @@ var getRecipeByName = /*#__PURE__*/function () {
             category: {
               $in: categoryFound._id
             }
+          }).select('title category totalTime images').populate({
+            path: 'category',
+            select: {
+              _id: 0
+            }
+          }).populate({
+            path: 'author',
+            select: 'name images rol',
+            populate: {
+              path: 'rol',
+              select: {
+                _id: 0
+              }
+            }
           });
         case 11:
           recipesFound = _context2.sent;
@@ -136,9 +149,9 @@ var getRecipeByName = /*#__PURE__*/function () {
   };
 }();
 exports.getRecipeByName = getRecipeByName;
-var getRecipesByAuthor = /*#__PURE__*/function () {
+var getRecipeById = /*#__PURE__*/function () {
   var _ref3 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(req, res) {
-    var id, userFound;
+    var id, recipeFound;
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
@@ -148,19 +161,123 @@ var getRecipesByAuthor = /*#__PURE__*/function () {
             _context3.next = 4;
             break;
           }
+          return _context3.abrupt("return", res.status(400).json({
+            message: 'Falta la categoría a buscar.'
+          }));
+        case 4:
+          _context3.next = 6;
+          return _Recipe["default"].findById(id).populate({
+            path: 'category',
+            select: {
+              _id: 0
+            }
+          }).populate({
+            path: 'author',
+            select: 'name images rol',
+            populate: {
+              path: 'rol',
+              select: {
+                _id: 0
+              }
+            }
+          });
+        case 6:
+          recipeFound = _context3.sent;
+          if (recipeFound) {
+            _context3.next = 9;
+            break;
+          }
           return _context3.abrupt("return", res.status(404).json({
+            message: 'No se encontró ninguna receta con este ID.'
+          }));
+        case 9:
+          res.json(recipeFound);
+          _context3.next = 15;
+          break;
+        case 12:
+          _context3.prev = 12;
+          _context3.t0 = _context3["catch"](1);
+          res.status(409).json({
+            message: _context3.t0.message
+          });
+        case 15:
+        case "end":
+          return _context3.stop();
+      }
+    }, _callee3, null, [[1, 12]]);
+  }));
+  return function getRecipeById(_x5, _x6) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+exports.getRecipeById = getRecipeById;
+var searchTerm = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(req, res) {
+    var searchTerm, indexes;
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
+        case 0:
+          searchTerm = req.query.searchTerm;
+          _context4.prev = 1;
+          _context4.next = 4;
+          return _Recipe["default"].createIndexes({
+            title: 'text',
+            description: 'text',
+            ingredients: 'text'
+          });
+        case 4:
+          indexes = _context4.sent;
+          console.log(indexes);
+          // Busca recetas que coincidan con el término de búsqueda
+          // const recipes = await Recipe.find({ $text: { $search: searchTerm } });
+
+          // Envía las recetas encontradas como respuesta
+          // res.json(recipes);
+          _context4.next = 12;
+          break;
+        case 8:
+          _context4.prev = 8;
+          _context4.t0 = _context4["catch"](1);
+          console.log(_context4.t0);
+          res.status(409).json({
+            message: _context4.t0.message
+          });
+        case 12:
+        case "end":
+          return _context4.stop();
+      }
+    }, _callee4, null, [[1, 8]]);
+  }));
+  return function searchTerm(_x7, _x8) {
+    return _ref4.apply(this, arguments);
+  };
+}();
+exports.searchTerm = searchTerm;
+var getRecipesByAuthor = /*#__PURE__*/function () {
+  var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(req, res) {
+    var id, userFound;
+    return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+      while (1) switch (_context5.prev = _context5.next) {
+        case 0:
+          id = req.params.id;
+          _context5.prev = 1;
+          if (id) {
+            _context5.next = 4;
+            break;
+          }
+          return _context5.abrupt("return", res.status(404).json({
             message: 'Falta el ID del autor.'
           }));
         case 4:
           if ((0, _mongoose.isValidObjectId)(id)) {
-            _context3.next = 6;
+            _context5.next = 6;
             break;
           }
-          return _context3.abrupt("return", res.status(400).json({
+          return _context5.abrupt("return", res.status(400).json({
             message: 'El ID del autor proporcionado no es válido.'
           }));
         case 6:
-          _context3.next = 8;
+          _context5.next = 8;
           return _User["default"].findOne({
             _id: {
               $in: id
@@ -185,132 +302,16 @@ var getRecipesByAuthor = /*#__PURE__*/function () {
             }]
           }).select('recipes');
         case 8:
-          userFound = _context3.sent;
+          userFound = _context5.sent;
           if (userFound) {
-            _context3.next = 11;
+            _context5.next = 11;
             break;
           }
-          return _context3.abrupt("return", res.status(404).json({
+          return _context5.abrupt("return", res.status(404).json({
             message: 'No se encontró ningún usuario con este ID.'
           }));
         case 11:
           res.json(userFound.recipes);
-          _context3.next = 17;
-          break;
-        case 14:
-          _context3.prev = 14;
-          _context3.t0 = _context3["catch"](1);
-          res.status(409).json({
-            message: _context3.t0.message
-          });
-        case 17:
-        case "end":
-          return _context3.stop();
-      }
-    }, _callee3, null, [[1, 14]]);
-  }));
-  return function getRecipesByAuthor(_x5, _x6) {
-    return _ref3.apply(this, arguments);
-  };
-}();
-exports.getRecipesByAuthor = getRecipesByAuthor;
-var updateRecipe = /*#__PURE__*/function () {
-  var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(req, res) {
-    var id, category, categoryUpdated;
-    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
-      while (1) switch (_context4.prev = _context4.next) {
-        case 0:
-          id = req.params.id;
-          category = req.body.category;
-          _context4.prev = 2;
-          if ((0, _mongoose.isValidObjectId)(id)) {
-            _context4.next = 5;
-            break;
-          }
-          return _context4.abrupt("return", res.status(400).json({
-            message: 'El id proporcionado no es válido.'
-          }));
-        case 5:
-          if (category) {
-            _context4.next = 7;
-            break;
-          }
-          return _context4.abrupt("return", res.status(400).json({
-            message: 'Falta el campo de la categoría a modificar.'
-          }));
-        case 7:
-          _context4.next = 9;
-          return _Category["default"].findByIdAndUpdate(id, {
-            category: category
-          }, {
-            "new": true
-          });
-        case 9:
-          categoryUpdated = _context4.sent;
-          if (categoryUpdated) {
-            _context4.next = 12;
-            break;
-          }
-          return _context4.abrupt("return", res.status(404).json({
-            message: 'No se encontró ninguna categoría con este id.'
-          }));
-        case 12:
-          res.json(categoryUpdated);
-          _context4.next = 18;
-          break;
-        case 15:
-          _context4.prev = 15;
-          _context4.t0 = _context4["catch"](2);
-          res.status(409).json({
-            message: _context4.t0.message
-          });
-        case 18:
-        case "end":
-          return _context4.stop();
-      }
-    }, _callee4, null, [[2, 15]]);
-  }));
-  return function updateRecipe(_x7, _x8) {
-    return _ref4.apply(this, arguments);
-  };
-}();
-exports.updateRecipe = updateRecipe;
-var deleteRecipe = /*#__PURE__*/function () {
-  var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(req, res) {
-    var id, recipeDeleted;
-    return _regeneratorRuntime().wrap(function _callee5$(_context5) {
-      while (1) switch (_context5.prev = _context5.next) {
-        case 0:
-          id = req.params.id;
-          _context5.prev = 1;
-          if ((0, _mongoose.isValidObjectId)(id)) {
-            _context5.next = 4;
-            break;
-          }
-          return _context5.abrupt("return", res.status(400).json({
-            message: 'El id proporcionado no es válido.'
-          }));
-        case 4:
-          _context5.next = 6;
-          return _Recipe["default"].findByIdAndDelete(id);
-        case 6:
-          recipeDeleted = _context5.sent;
-          if (recipeDeleted) {
-            _context5.next = 9;
-            break;
-          }
-          return _context5.abrupt("return", res.status(404).json({
-            message: 'No se encontró ninguna receta con este id.'
-          }));
-        case 9:
-          _context5.next = 11;
-          return _User["default"].findByIdAndUpdate(recipeDeleted.author, {
-            $pull: {
-              recipes: recipeDeleted._id
-            }
-          });
-        case 11:
-          res.sendStatus(204);
           _context5.next = 17;
           break;
         case 14:
@@ -325,85 +326,201 @@ var deleteRecipe = /*#__PURE__*/function () {
       }
     }, _callee5, null, [[1, 14]]);
   }));
-  return function deleteRecipe(_x9, _x10) {
+  return function getRecipesByAuthor(_x9, _x10) {
     return _ref5.apply(this, arguments);
+  };
+}();
+exports.getRecipesByAuthor = getRecipesByAuthor;
+var updateRecipe = /*#__PURE__*/function () {
+  var _ref6 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(req, res) {
+    var id, category, categoryUpdated;
+    return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+      while (1) switch (_context6.prev = _context6.next) {
+        case 0:
+          id = req.params.id;
+          category = req.body.category;
+          _context6.prev = 2;
+          if ((0, _mongoose.isValidObjectId)(id)) {
+            _context6.next = 5;
+            break;
+          }
+          return _context6.abrupt("return", res.status(400).json({
+            message: 'El id proporcionado no es válido.'
+          }));
+        case 5:
+          if (category) {
+            _context6.next = 7;
+            break;
+          }
+          return _context6.abrupt("return", res.status(400).json({
+            message: 'Falta el campo de la categoría a modificar.'
+          }));
+        case 7:
+          _context6.next = 9;
+          return _Category["default"].findByIdAndUpdate(id, {
+            category: category
+          }, {
+            "new": true
+          });
+        case 9:
+          categoryUpdated = _context6.sent;
+          if (categoryUpdated) {
+            _context6.next = 12;
+            break;
+          }
+          return _context6.abrupt("return", res.status(404).json({
+            message: 'No se encontró ninguna categoría con este id.'
+          }));
+        case 12:
+          res.json(categoryUpdated);
+          _context6.next = 18;
+          break;
+        case 15:
+          _context6.prev = 15;
+          _context6.t0 = _context6["catch"](2);
+          res.status(409).json({
+            message: _context6.t0.message
+          });
+        case 18:
+        case "end":
+          return _context6.stop();
+      }
+    }, _callee6, null, [[2, 15]]);
+  }));
+  return function updateRecipe(_x11, _x12) {
+    return _ref6.apply(this, arguments);
+  };
+}();
+exports.updateRecipe = updateRecipe;
+var deleteRecipe = /*#__PURE__*/function () {
+  var _ref7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7(req, res) {
+    var id, recipeDeleted;
+    return _regeneratorRuntime().wrap(function _callee7$(_context7) {
+      while (1) switch (_context7.prev = _context7.next) {
+        case 0:
+          id = req.params.id;
+          _context7.prev = 1;
+          if ((0, _mongoose.isValidObjectId)(id)) {
+            _context7.next = 4;
+            break;
+          }
+          return _context7.abrupt("return", res.status(400).json({
+            message: 'El id proporcionado no es válido.'
+          }));
+        case 4:
+          _context7.next = 6;
+          return _Recipe["default"].findByIdAndDelete(id);
+        case 6:
+          recipeDeleted = _context7.sent;
+          if (recipeDeleted) {
+            _context7.next = 9;
+            break;
+          }
+          return _context7.abrupt("return", res.status(404).json({
+            message: 'No se encontró ninguna receta con este id.'
+          }));
+        case 9:
+          _context7.next = 11;
+          return _User["default"].findByIdAndUpdate(recipeDeleted.author, {
+            $pull: {
+              recipes: recipeDeleted._id
+            }
+          });
+        case 11:
+          res.sendStatus(204);
+          _context7.next = 17;
+          break;
+        case 14:
+          _context7.prev = 14;
+          _context7.t0 = _context7["catch"](1);
+          res.status(409).json({
+            message: _context7.t0.message
+          });
+        case 17:
+        case "end":
+          return _context7.stop();
+      }
+    }, _callee7, null, [[1, 14]]);
+  }));
+  return function deleteRecipe(_x13, _x14) {
+    return _ref7.apply(this, arguments);
   };
 }();
 exports.deleteRecipe = deleteRecipe;
 var createRecipe = /*#__PURE__*/function () {
-  var _ref6 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(req, res) {
+  var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8(req, res) {
     var _req$body, title, description, category, servings, yieldRecipe, totalTime, ingredients, steps, times, videoURL, userId, file, _newRecipe$yieldRecip, _newRecipe$videoURL, recipeFound, categoryFound, authorFound, newRecipe, _yield$uploadImage, fileId, photoURL, thumbnailUrl, recipeSaved, userUpdated;
-    return _regeneratorRuntime().wrap(function _callee6$(_context6) {
-      while (1) switch (_context6.prev = _context6.next) {
+    return _regeneratorRuntime().wrap(function _callee8$(_context8) {
+      while (1) switch (_context8.prev = _context8.next) {
         case 0:
           _req$body = req.body, title = _req$body.title, description = _req$body.description, category = _req$body.category, servings = _req$body.servings, yieldRecipe = _req$body.yieldRecipe, totalTime = _req$body.totalTime, ingredients = _req$body.ingredients, steps = _req$body.steps, times = _req$body.times, videoURL = _req$body.videoURL, userId = _req$body.userId;
           file = req.file;
-          _context6.prev = 2;
+          _context8.prev = 2;
           if (file) {
-            _context6.next = 5;
+            _context8.next = 5;
             break;
           }
-          return _context6.abrupt("return", res.status(404).json({
+          return _context8.abrupt("return", res.status(404).json({
             message: 'Imagen de portada de receta necesaria.'
           }));
         case 5:
           if ((0, _mongoose.isValidObjectId)(category)) {
-            _context6.next = 7;
+            _context8.next = 7;
             break;
           }
-          return _context6.abrupt("return", res.status(404).json({
+          return _context8.abrupt("return", res.status(404).json({
             message: 'Id de la categoría no válido.'
           }));
         case 7:
-          _context6.next = 9;
+          _context8.next = 9;
           return _Recipe["default"].findOne({
             title: {
               $in: title
             }
           });
         case 9:
-          recipeFound = _context6.sent;
+          recipeFound = _context8.sent;
           if (!recipeFound) {
-            _context6.next = 12;
+            _context8.next = 12;
             break;
           }
-          return _context6.abrupt("return", res.status(404).json({
+          return _context8.abrupt("return", res.status(404).json({
             message: 'Ya existe una receta con este nombre.'
           }));
         case 12:
-          _context6.next = 14;
+          _context8.next = 14;
           return _Category["default"].findById(category);
         case 14:
-          categoryFound = _context6.sent;
+          categoryFound = _context8.sent;
           if (categoryFound) {
-            _context6.next = 17;
+            _context8.next = 17;
             break;
           }
-          return _context6.abrupt("return", res.status(404).json({
+          return _context8.abrupt("return", res.status(404).json({
             message: 'Categoría no encontrada.'
           }));
         case 17:
           if ((0, _mongoose.isValidObjectId)(userId)) {
-            _context6.next = 19;
+            _context8.next = 19;
             break;
           }
-          return _context6.abrupt("return", res.status(404).json({
+          return _context8.abrupt("return", res.status(404).json({
             message: 'Id del usuario no válido.'
           }));
         case 19:
-          _context6.next = 21;
+          _context8.next = 21;
           return _User["default"].findOne({
             _id: {
               $in: userId
             }
           });
         case 21:
-          authorFound = _context6.sent;
+          authorFound = _context8.sent;
           if (authorFound) {
-            _context6.next = 24;
+            _context8.next = 24;
             break;
           }
-          return _context6.abrupt("return", res.status(404).json({
+          return _context8.abrupt("return", res.status(404).json({
             message: 'Autor no encontrado.'
           }));
         case 24:
@@ -423,14 +540,14 @@ var createRecipe = /*#__PURE__*/function () {
           (_newRecipe$videoURL = newRecipe.videoURL) !== null && _newRecipe$videoURL !== void 0 ? _newRecipe$videoURL : newRecipe.videoURL = videoURL;
 
           // Upload cover recipe
-          _context6.next = 29;
+          _context8.next = 29;
           return (0, _imagekit.uploadImage)({
             folder: 'recipes',
             filePath: file.path,
             fileName: file.filename
           });
         case 29:
-          _yield$uploadImage = _context6.sent;
+          _yield$uploadImage = _context8.sent;
           fileId = _yield$uploadImage.fileId;
           photoURL = _yield$uploadImage.photoURL;
           thumbnailUrl = _yield$uploadImage.thumbnailUrl;
@@ -439,43 +556,43 @@ var createRecipe = /*#__PURE__*/function () {
             photoURL: photoURL,
             thumbnailUrl: thumbnailUrl
           };
-          _context6.next = 36;
+          _context8.next = 36;
           return newRecipe.save();
         case 36:
-          recipeSaved = _context6.sent;
-          _context6.next = 39;
+          recipeSaved = _context8.sent;
+          _context8.next = 39;
           return _User["default"].findByIdAndUpdate(newRecipe.author, {
             $push: {
               recipes: recipeSaved._id
             }
           });
         case 39:
-          userUpdated = _context6.sent;
+          userUpdated = _context8.sent;
           if (userUpdated) {
-            _context6.next = 42;
+            _context8.next = 42;
             break;
           }
-          return _context6.abrupt("return", res.status(404).json({
+          return _context8.abrupt("return", res.status(404).json({
             message: 'No se pudo guardar la receta con el usuario.'
           }));
         case 42:
           res.json(recipeSaved);
-          _context6.next = 48;
+          _context8.next = 48;
           break;
         case 45:
-          _context6.prev = 45;
-          _context6.t0 = _context6["catch"](2);
+          _context8.prev = 45;
+          _context8.t0 = _context8["catch"](2);
           res.status(409).json({
-            message: _context6.t0.message
+            message: _context8.t0.message
           });
         case 48:
         case "end":
-          return _context6.stop();
+          return _context8.stop();
       }
-    }, _callee6, null, [[2, 45]]);
+    }, _callee8, null, [[2, 45]]);
   }));
-  return function createRecipe(_x11, _x12) {
-    return _ref6.apply(this, arguments);
+  return function createRecipe(_x15, _x16) {
+    return _ref8.apply(this, arguments);
   };
 }();
 

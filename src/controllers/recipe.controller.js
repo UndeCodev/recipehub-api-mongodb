@@ -19,7 +19,7 @@ export const getRecipes = async(req, res) => {
                                 })
                                 .populate({
                                   path: 'category',
-                                  select: ({ _id: 0, photoURL: 0 })
+                                  select: ({ _id: 0 })
                                 })
 
                                 
@@ -40,11 +40,57 @@ export const getRecipeByName = async(req, res) => {
     const categoryFound = await Category.findOne({ category: { $in: category } });
     if(!categoryFound) return res.status(404).json({ message: 'No se encontró ninguna categoría con este nombre.' });
 
-    const recipesFound = await Recipe.find({ category: { $in: categoryFound._id } });
+    const recipesFound = await Recipe.find({ category: { $in: categoryFound._id } })
+                                     .select('title category totalTime images')
+                                     .populate({ path: 'category', select: ({ _id: 0 }) })
+                                     .populate({
+                                        path: 'author',
+                                        select: 'name images rol',
+                                        populate: { path: 'rol', select: ({ _id: 0 }) },                                      
+                                      })
     if(!recipesFound) return res.status(404).json({ message: 'No se encontraron recetas con esta categoría.' });
 
     res.json(recipesFound);
   }catch(error){
+    res.status(409).json({ message: error.message });
+  }
+}
+
+export const getRecipeById = async(req, res) => {
+  const { id } = req.params;
+
+  try {
+    if(!id) return res.status(400).json({ message: 'Falta la categoría a buscar.' });
+
+    const recipeFound = await Recipe.findById(id)
+                                    .populate({ path: 'category', select: ({ _id: 0 }) })
+                                    .populate({
+                                      path: 'author',
+                                      select: 'name images rol',
+                                      populate: { path: 'rol', select: ({ _id: 0 }) },                                      
+                                    })
+    if(!recipeFound) return res.status(404).json({ message: 'No se encontró ninguna receta con este ID.' });
+
+    res.json(recipeFound);
+  }catch(error){
+    res.status(409).json({ message: error.message });
+  }
+}
+
+export const searchTerm = async(req, res) => {
+  const { searchTerm } = req.query 
+  
+  try {
+    const indexes = await Recipe.createIndexes({ title: 'text', description: 'text', ingredients: 'text'});
+
+    console.log(indexes);
+    // Busca recetas que coincidan con el término de búsqueda
+    // const recipes = await Recipe.find({ $text: { $search: searchTerm } });
+
+    // Envía las recetas encontradas como respuesta
+    // res.json(recipes);
+  } catch (error) {
+    console.log(error);
     res.status(409).json({ message: error.message });
   }
 }
