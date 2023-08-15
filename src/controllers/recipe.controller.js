@@ -81,16 +81,18 @@ export const searchTerm = async(req, res) => {
   const { searchTerm } = req.query 
   
   try {
-    const indexes = await Recipe.createIndexes({ title: 'text', description: 'text', ingredients: 'text'});
+    if(!searchTerm) return res.json(null)
 
-    console.log(indexes);
-    // Busca recetas que coincidan con el término de búsqueda
-    // const recipes = await Recipe.find({ $text: { $search: searchTerm } });
-
-    // Envía las recetas encontradas como respuesta
-    // res.json(recipes);
+    const recipes = await Recipe.find({
+      $or: [
+        { title: { $regex: searchTerm, $options: 'i' } },
+        { description: { $regex: searchTerm, $options: 'i' } },
+        { category: await Category.findOne({ category: { $regex: searchTerm, $options: 'i' } }).select('_id') }
+      ]
+    }).select('_id title').limit(5);
+    
+    res.json(recipes);
   } catch (error) {
-    console.log(error);
     res.status(409).json({ message: error.message });
   }
 }
@@ -230,92 +232,3 @@ export const createRecipe = async(req, res) => {
     res.status(409).json({ message: error.message });
   }
 }
-
-// Create recipe 
-// const validateFields = (req, res, fields) => {
-//   for (const field of fields) {
-//     if (!req.body[field]) {
-//       return res.status(404).json({message: `El campo ${field} es obligatorio para crear una receta.`,});
-//     }
-//   }
-// };
-
-// const parseAndValidateArrays = (req, res, fields) => {
-//   const parsedFields = {};
-
-//   for (const field of fields) {
-//       parsedFields[field] = JSON.parse(req.body[field]);
-//       if (!Array.isArray(parsedFields[field])) {
-//           return res.status(400).json({ message: `El campo ${field} debe de ser un arreglo de objetos.` });
-//       }
-//   }
-
-//   return parsedFields;
-// }
-
-// export const createRecipe = async (req, res) => {
-//   const { 
-//     title, description, userId, category, videoURL, 
-//     servings, yieldRecipe, totalTime, 
-//   } = req.body;
-
-//   const { files } = req;
-
-//   try {
-//     // Validations
-//     validateFields(req, res, ["title", "description", "userId", "category", "servings", "totalTime", "ingredients", "steps", "times", ]);
-//     const { ingredients, steps, times } = parseAndValidateArrays(req, res, ['ingredients', 'steps', 'times']);
-
-//     if(!files[0]) return res.status(404).json({ message: 'Imagen de portada de receta necesaria.' });
-//     if(!isValidObjectId(category)) return res.status(404).json({ message: 'Id de la categoría no válido.' });
-
-//     const categoryFound = await Category.findById(category);
-//     if(!categoryFound) return res.status(404).json({ message: 'Categoría no encontrada.' }); 
-
-//     // Body of the new recipe
-//     const newRecipe = new Recipe({
-//       title,
-//       description,
-//       category: categoryFound._id,
-//       servings,
-//       totalTime,
-//       ingredients,
-//       steps,
-//       times,
-//     });
-
-//     const authorFound = await User.findOne({ _id: { $in: userId } });
-//     if(!authorFound) return res.status(404).json({ message: 'Autor no encontrado.' });   
-//     console.log(authorFound);
-    
-//     newRecipe.author = authorFound._id;
-
-//     // Optional parameters
-//     newRecipe.yieldRecipe ??= yieldRecipe;
-//     newRecipe.videoURL    ??= videoURL;
-
-//     // Upload cover recipe
-//     const { fileId, photoURL, thumbnailUrl } = await uploadImage({
-//       folder: 'recipes',
-//       filePath: files[0].path,
-//       fileName: files[0].filename,
-//     });
-
-//     newRecipe.images = {
-//       fileId,
-//       photoURL,
-//       thumbnailUrl
-//     };
-
-//     const recipeSaved = await newRecipe.save();
-    
-    // const res = await User.findByIdAndUpdate(newRecipe.author, {
-    //   $push: { recipes: recipeSaved._id }
-    // });
-    // if(!res) return res.status(404).json({ message: 'No se pudo guardar.' });   
-
-    // res.json(recipeSaved);
-//   } catch (error) {
-//     res.status(409).json({ message: error.message });
-//   }
-// }
